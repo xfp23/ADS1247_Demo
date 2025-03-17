@@ -264,18 +264,17 @@ typedef enum
     PGA_GAIN_128X = PGA_128X, // PGA 128倍增益
 } ADS1247_PGA_Gain_t;         // PGA增益枚举
 
-
-typedef struct 
+typedef struct
 {
     ADS1247_SampleRate_t DR; // 数据采样速率
-    ADS1247_PGA_Gain_t PGA; // PGA 
-}ADS1247_Config_t;
+    ADS1247_PGA_Gain_t PGA;  // PGA
+} ADS1247_Config_t;
 
 typedef union
 {
     struct
     {
-        ADS1247_Flag_t flag; // 标志位
+        ADS1247_Flag_t flag;   // 标志位
         ADS1247_Config_t conf; // 配置
     };
 } ADS1247_Class_t;

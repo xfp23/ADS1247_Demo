@@ -24,7 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "M_Flag.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -91,13 +91,19 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
-  
+  ADS1247_Init();
+  uint32_t ADC_temp = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  ADC_temp = ADS1247_getADC();
+	  if(ADC_temp != 0xFFFFFFFF)
+	  {
+	  ADC_rsult = ADC_temp;
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

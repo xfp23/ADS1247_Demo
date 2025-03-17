@@ -21,7 +21,7 @@
 #include "tim.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "M_Flag.h"
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim7;
@@ -100,5 +100,46 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 }
 
 /* USER CODE BEGIN 1 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	static uint8_t sys1ms_count = 0;
+	static uint8_t sys10ms_count = 0;
+	static uint8_t sys100ms_count = 0;
+	static uint16_t sys500ms_count = 0;
+	static uint16_t sys1000ms_count = 0;
+	if(htim->Instance == TIM7)
+	{
+     
+		if(++sys1ms_count >= 1)
+		{
+			sys1ms_count = 0;
+			UserTim.bytes.sysTim_1ms = ON;
+		}
+		if(++sys10ms_count >= 10)
+		{
+			sys10ms_count = 0;
+			UserTim.bytes.sysTim_10ms = ON;
+		}
+		if(++sys100ms_count >= 100)
+		{
+			sys100ms_count = 0;
+			UserTim.bytes.sysTim_100ms = ON;
+		}
+		if(++sys500ms_count >= 500)
+		{
+			sys500ms_count = 0;
+			UserTim.bytes.sysTim_500ms = ON;
+			
 
+			
+		}
+		
+		if( ++sys1000ms_count >= 1000)
+		{
+		UserTim.bytes.sysTim_1000ms = ON;
+			sys1000ms_count = 0;
+		}
+		 
+	}
+}
 /* USER CODE END 1 */

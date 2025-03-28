@@ -105,10 +105,10 @@ typedef enum
 #define MUX_SN_AIN3 0x03 // AIN3负输入
 
 // ADC正向输入选择
-#define MUX_SP_AIN0 (0x00 << 3) // AIN1正输入
-#define MUX_SP_AIN1 (0x01 << 3) // AIN2正输入
-#define MUX_SP_AIN2 (0x02 << 3) // AIN3正输入
-#define MUX_SP_AIN3 (0x04 << 3) // AIN4正输入
+#define MUX_SP_AIN0 (0x00 << 3) // AIN0正输入
+#define MUX_SP_AIN1 (0x01 << 3) // AIN1正输入
+#define MUX_SP_AIN2 (0x02 << 3) // AIN2正输入
+#define MUX_SP_AIN3 (0x04 << 3) // AIN3正输入
 
 // 电流源配置
 #define BSC_OFF (0x00 << 6)   // 关闭电流源
@@ -187,7 +187,7 @@ typedef enum
 #define IDAC1_OUTPUT2_AIN2 0x02 // 选择AIN2引脚输出激励电流
 #define IDAC1_OUTPUT2_AIN3 0x03 // 选择AIN3引脚输出激励电流
 
-// 选择第一个激励电流源
+// 选择第一个激励电流源 这里宏定义按照数据手册来讲是对的，IDAX代表操作的额寄存器号，数据手册中激励电流的输出并不是两个独立的
 #define IDAC1_OUTPUT1_AIN0 (0x00 << 4) // 选择AIN0引脚输出激励电流
 #define IDAC1_OUTPUT1_AIN1 (0x01 << 4) // 选择AIN1引脚输出激励电流
 #define IDAC1_OUTPUT1_AIN2 (0x02 << 4) // 选择AIN2引脚输出激励电流
@@ -267,7 +267,7 @@ typedef enum
 typedef struct
 {
     ADS1247_SampleRate_t DR; // 数据采样速率
-    ADS1247_PGA_Gain_t PGA;  // PGA
+    ADS1247_PGA_Gain_t PGA;  // PGA 
 } ADS1247_Config_t;
 
 typedef union
@@ -275,7 +275,7 @@ typedef union
     struct
     {
         ADS1247_Flag_t flag;   // 标志位
-        ADS1247_Config_t conf; // 配置
+        ADS1247_Config_t conf; // 配置 此字段只读
     };
 } ADS1247_Class_t;
 

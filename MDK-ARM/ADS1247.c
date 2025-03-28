@@ -102,12 +102,12 @@ void ADS1247_Init()
     ADS1247_Reset();                                                                             // 复位
     ADS1247_CS_CLR;                                                                              // 拉低CS
     ADS1247_WriteCommand(WAKEUP_CMD);                                                            // 发送唤醒命令
-    ADS1247_WriteReg(MUX0_REG, MUX_SP_AIN0 | MUX_SN_AIN1 | MUX_SP_AIN2 | MUX_SN_AIN3 | BSC_OFF); // 配置模拟输入和电流源
+    ADS1247_WriteReg(MUX0_REG,  MUX_SP_AIN1 | MUX_SN_AIN2 | BSC_OFF); // 配置模拟输入和电流源
     ADS1247_WriteReg(VBIAS_REG, VBIAS_AIN0_DISABLE);                                             // 配置偏置电压
     ADS1247_WriteReg(MUX1_REG, NORMAL_MODEL | REFSELT_REFP0_REFN0 | INTERNAL_ALWAYS_OFF);        // 选择工作模式和参考电压
     ADS1247_SetDataRateAndPGA(SAMPLE_RATE_320SPS, PGA_GAIN_1X);
-    ADS1247_WriteReg(IDAC0_REG, EXCITA_CURRENT_OFF | DRDY_MODE_DOUT_ONLY);                        // 设置采样速率和PGA
-    ADS1247_WriteReg(IDAC1_REG, IDAC1_OUTPUT2_AIN0 | IDAC1_OUTPUT1_AIN2);                         // 选择激励电流输出的引脚
+    ADS1247_WriteReg(IDAC0_REG, EXCITA_CURRENT_500uA | DRDY_MODE_DOUT_ONLY);                        // 设置采样速率和PGA
+    ADS1247_WriteReg(IDAC1_REG, IDAC1_OUTPUT2_AIN3 | IDAC1_OUTPUT1_AIN0);                         // 选择激励电流输出的引脚
     ADS1247_WriteReg(GPIOCFG_REG, GPIO0_DISABLE | GPIO1_DISABLE | GPIO2_DISABLE | GPIO3_DISABLE); // 配置GPIO
     ADS1247_START_SET;                                                                            // 开始连续转换
 }

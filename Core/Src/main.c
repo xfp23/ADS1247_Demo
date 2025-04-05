@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usart.h"
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
@@ -90,8 +91,9 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_TIM7_Init();
+  MX_LPUART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  ADS1247_Init();
+  ADS1247_Init(DR_10SPS,PGA_1X);
   uint32_t ADC_temp = 0;
   /* USER CODE END 2 */
 

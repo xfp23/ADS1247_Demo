@@ -1,8 +1,12 @@
 #include "ADS1247.h"
 #include "spi.h"
+#include "stdio.h"
+#include "string.h"
+#include "stdlib.h"
 
 volatile ADS1247_Class_t ads1247 = {0}; // ads1247 实例
 
+// uint8_t regValue[3] = {0};
 #ifndef ON
 #define ON (1)
 #endif
@@ -12,105 +16,202 @@ volatile ADS1247_Class_t ads1247 = {0}; // ads1247 实例
 #endif
 
 /**
- * @brief 复位ADS1247
- *
+ * @brief 复位ads1247
+ * 
+ * @param handle ads1247句柄
+ * @return ADS1247_Staus_t 操作状态
  */
-void ADS1247_Reset()
+ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle *handle)
 {
-    ADS1247_RESET_SET;
-    ADS1247_RESET_CLR;
-    HAL_Delay(10);
-    ADS1247_RESET_SET;
+	if(handle == NULL || *handle == NULL) return ADS1247_ERROR;
+	HAL_GPIO_WritePin((*handle)->conf.ReSet.port,(*handle)->conf.ReSet.pin,GPIO_PIN_SET);
+	HAL_Delay(10);
+    HAL_GPIO_WritePin((*handle)->conf.ReSet.port,(*handle)->conf.ReSet.pin,GPIO_PIN_RESET);
+	HAL_Delay(10);
+	HAL_GPIO_WritePin((*handle)->conf.ReSet.port,(*handle)->conf.ReSet.pin,GPIO_PIN_SET);
+	return ADS1247_OK;
 }
 
 /**
- * @brief 写字节数据
- *
- * @param data 要写入的字节
- * @param size 写入字节大小
- * @return spi传输成功 : 0x00 spi传输失败 : 0xff
+ * @brief ADS1247发送数据API
+ * 
+ * @param handle ads1247句柄
+ * @param data 要写入的数据
+ * @param size 要写入的数据大小 单位: 字节
+ * @return ADS1247_Staus_t 操作状态
  */
-uint8_t ADS1247_Writebyte(uint8_t *data, size_t size)
+ADS1247_Staus_t ADS1247_Writebyte(ADS1247_Handle *handle, uint8_t *data, size_t size)
 {
-    if (HAL_SPI_Transmit(ADS1247_SPI_Handle, data, size, ADS1247_TIMEOUT) != HAL_OK)
-        return 0xff;
-    return 0x00;
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR; // 返回错误
+	HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_RESET);
+#if ADS1120_USEDMA
+	if ((*handle)->flag.DMA == ADS1247_Flag_ON)
+	{
+		if (HAL_SPI_Transmit_DMA((*handle)->conf.spi, data, size) != HAL_OK)
+		{
+			HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_SET);
+			return ADS1247_SPIERROR;
+		}
+		HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_SET);
+		return ADS1247_OK;
+	}
+#endif
+	if (HAL_SPI_Transmit((*handle)->conf.spi, data, size, (*handle)->conf.Timeout) != HAL_OK)
+	{
+		HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_SET);
+		return ADS1247_SPIERROR;
+	}
+	HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_SET);
+	return ADS1247_OK;
 }
 
 /**
- * @brief 读字节数据
- *
- * @param data 读取数据的缓存区
- * @param size 读取数据的大小
- * @return uint8_t spi通信成功返回 0x00 通信失败返回 0xff
+ * @brief ads1247读字节API
+ * 
+ * @param handle ads1247句柄
+ * @param data 读取数据缓冲区
+ * @param size 读取数据大小 单位 : 字节
+ * @return ADS1247_Staus_t 操作状态
  */
-uint8_t ADS1247_Readbyte(uint8_t *data, size_t size)
+ADS1247_Staus_t ADS1247_Readbyte(ADS1247_Handle *handle, uint8_t *data, size_t size)
 {
-    if (HAL_SPI_Receive(ADS1247_SPI_Handle, data, size, ADS1247_TIMEOUT) != HAL_OK)
-        return 0xff;
-    return 0x00;
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR; // 返回错误
+	HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_RESET);
+#if ADS1120_USEDMA
+	if ((*handle)->flag.DMA == ADS1247_Flag_ON)
+	{
+		if (HAL_SPI_Receive_DMA((*handle)->conf.spi, data, size) != HAL_OK)
+		{
+			HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_SET);
+			return ADS1247_SPIERROR;
+		}
+		HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_SET);
+		return ADS1247_OK;
+	}
+#endif
+	if (HAL_SPI_Receive((*handle)->conf.spi, data, size, (*handle)->conf.Timeout) != HAL_OK)
+	{
+		HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_SET);
+		return ADS1247_SPIERROR;
+	}
+	HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_SET);
+	return ADS1247_OK;
 }
 
 /**
- * @brief ADS1247 写命令
- *
- * @param cmd 要写入的命令，命令已经在 ADS1247_Command_t中枚举
- * @return 命令发送成功 : 0x00 , 命令发送失败 : 0xff
+ * @brief ads1247写入命令
+ * 
+ * @param handle ads1247句柄
+ * @param cmd 命令 ADS1247_Command_t 在此枚举
+ * @return ADS1247_Staus_t 操作状态
  */
-uint8_t ADS1247_WriteCommand(ADS1247_Command_t cmd)
+ADS1247_Staus_t ADS1247_WriteCommand(ADS1247_Handle *handle,ADS1247_Command_t cmd)
 {
+
     uint8_t data = (uint8_t)cmd;
-    return ADS1247_Writebyte(&data, 1);
+    return ADS1247_Writebyte(handle,&data, 1);
+
 }
 
 /**
- * @brief 写寄存器配置函数,单字节写入配置
- *
- * @param reg 要操作的寄存器，所有寄存器已在 ADS1247_Reg_t 类型中枚举
- * @param conf 要写入的配置，请对应配置文件选择合适的配置
- * @return uint8_t 写入成功返回0x00 写入失败返回 0xff
+ * @brief 写入单个寄存器
+ * 
+ * @param handle ads1247句柄
+ * @param reg 寄存器 ADS1247_Reg_t 在此枚举
+ * @param conf 配置字节
+ * @return ADS1247_Staus_t 操作状态
  */
-uint8_t ADS1247_WriteReg(ADS1247_Reg_t reg, uint8_t conf)
+ADS1247_Staus_t ADS1247_WriteReg(ADS1247_Handle *handle,ADS1247_Reg_t reg, uint8_t conf)
 {
-    uint8_t data[3] = {(WREG_CMD | reg), 0x00, conf};
-    return ADS1247_Writebyte(data, 3);
+
+    uint8_t data[3] = { (uint8_t)(WREG_CMD | reg), 0x00, conf};
+	// printf("{ADS_WREG : \"%x\" , \"data\" : %x}\n",reg,data[2]);
+	
+   return ADS1247_Writebyte(handle,data,3);
 }
+
 
 /**
  * @brief 读取单个寄存器
  *
  * @param reg 读哪个寄存器
- * @return uint8_t 读取到的数据， 通信失败返回0xff
+ * @param buffer 读取寄存器的buffer
+ * @return ADS1247_Staus_t 操作状态
  */
-uint8_t ADS1247_ReadReg(ADS1247_Reg_t reg)
+ADS1247_Staus_t ADS1247_ReadReg(ADS1247_Handle *handle, ADS1247_Reg_t reg, uint8_t *buffer)
 {
-    uint8_t data[3] = {(RREG_CMD | reg), 0x00, 0x00};
-    uint8_t ret = ADS1247_Writebyte(data, 2);
-    ret = ADS1247_Readbyte(&data[2], 1);
-    if (ret != 0x00)
-        return ret;
-    return data[2];
+	uint8_t data[2] = {(RREG_CMD | reg), 0x00};
+	ADS1247_Staus_t ret = ADS1247_Writebyte(handle, data, 2);
+	if (ret != ADS1247_OK)
+		return ret; // 返回异常
+	ret = ADS1247_Readbyte(handle, buffer, 1);
+	// printf("{ADS_RREG : \"%x\" , \"data\" : %x}\n",reg,data[2]);
+	return ret;
+
 }
 
 /**
  * @brief ADS1247初始化
  *
  */
-void ADS1247_Init()
+ADS1247_Staus_t ADS1247_Init(ADS1247_Handle *handle,ADS1247_Config_t *conf)
 {
-    ADS1247_START_CLR;                                                                           // 确保转换停止
-    ADS1247_Reset();                                                                             // 复位
-    ADS1247_CS_CLR;                                                                              // 拉低CS
-    ADS1247_WriteCommand(WAKEUP_CMD);                                                            // 发送唤醒命令
-    ADS1247_WriteReg(MUX0_REG,  MUX_SP_AIN1 | MUX_SN_AIN2 | BSC_OFF); // 配置模拟输入和电流源
-    ADS1247_WriteReg(VBIAS_REG, VBIAS_AIN0_DISABLE);                                             // 配置偏置电压
-    ADS1247_WriteReg(MUX1_REG, NORMAL_MODEL | REFSELT_REFP0_REFN0 | INTERNAL_ALWAYS_OFF);        // 选择工作模式和参考电压
-    ADS1247_SetDataRateAndPGA(SAMPLE_RATE_320SPS, PGA_GAIN_1X);
-    ADS1247_WriteReg(IDAC0_REG, EXCITA_CURRENT_500uA | DRDY_MODE_DOUT_ONLY);                        // 设置采样速率和PGA
-    ADS1247_WriteReg(IDAC1_REG, IDAC1_OUTPUT2_AIN3 | IDAC1_OUTPUT1_AIN0);                         // 选择激励电流输出的引脚
-    ADS1247_WriteReg(GPIOCFG_REG, GPIO0_DISABLE | GPIO1_DISABLE | GPIO2_DISABLE | GPIO3_DISABLE); // 配置GPIO
-    ADS1247_START_SET;                                                                            // 开始连续转换
+	if (handle == NULL || *handle != NULL) return ADS1247_ERROR; // 返回错误
+
+	handle = calloc(1, sizeof(ADS1247_Class_t)); // 分配堆内存
+	if(*handle == NULL) return ADS1247_ERROR; // 返回错误
+
+	
+	HAL_GPIO_WritePin((*handle)->conf.ReSet.port,(*handle)->conf.ReSet.pin,GPIO_PIN_SET); // 确保复位引脚是高电平
+	HAL_GPIO_WritePin((*handle)->conf.CS.port,(*handle)->conf.CS.pin,GPIO_PIN_SET); // 确保START引脚是低电平
+	HAL_GPIO_WritePin((*handle)->conf.CS.port,(*handle)->conf.CS.pin,GPIO_PIN_SET);    // 确保CS是高电平
+	HAL_Delay(100);
+	
+	ADS1247_Reset(); // 复位ADS1247 使用REST引脚硬件复位，不适用命令复位
+	HAL_Delay(10);   // 至少0.6ms
+	
+	ADS1247_START_SET; // 拉高START确保能配置寄存器
+	ADS1247_RESET_SET;
+	ADS1247_CS_CLR;    // 拉低CS使能spi通信
+//	HAL_Delay(INIT_DELAYTIME);
+	ADS1247_WriteCommand(WAKEUP_CMD);
+//	HAL_Delay(INIT_DELAYTIME);
+//	ADS1247_WriteCommand(SDATAC_CMD);
+//	HAL_Delay(10);
+	
+	ADS1247_WriteReg(MUX0_REG,MUX_SP_AIN1 | MUX_SN_AIN2 | BSC_OFF); // 配置采样通道和烧毁电流源 0b00001010
+	HAL_Delay(INIT_DELAYTIME);
+	
+	ADS1247_WriteReg(VBIAS_REG,VBIAS_AIN0_DISABLE | VBIAS_AIN1_DISABLE | VBIAS_AIN2_DISABLE | VBIAS_AIN3_DISABLE); // 配置偏置电压 0b00000000
+	HAL_Delay(INIT_DELAYTIME);
+	
+	ADS1247_WriteReg(MUX1_REG,NORMAL_MODEL | REFSELT_REFP0_REFN0 | INTERNAL_ALWAYS_ON); // 选择外部参考，运行在正常模式，内部参考打开 0b00100000
+	HAL_Delay(INIT_DELAYTIME);
+//	ADS1247_START_SET;
+	ADS1247_WriteReg(SYS0_REG,RATE | PGA); // 配置采样速率和PGA 0b00000110
+	HAL_Delay(INIT_DELAYTIME);
+	
+	ADS1247_WriteReg(IDAC0_REG, EXCITA_CURRENT_500uA | DRDY_MODE_DOUT_ONLY); // 配置激励电流为500ua 以及DRDY行为 00000100
+	HAL_Delay(INIT_DELAYTIME);
+	
+	ADS1247_WriteReg(IDAC1_REG, (IDAC1_OUTPUT1_AIN0 | IDAC1_OUTPUT2_AIN3)); // 选择 AIN0 AIN3输出激励电流 0b11001111
+	HAL_Delay(INIT_DELAYTIME);
+	
+	ADS1247_WriteReg(GPIOCFG_REG,GPIO0_DISABLE | GPIO1_DISABLE | GPIO2_DISABLE | GPIO3_DISABLE ); // 禁用GPIO 0b00000000
+	HAL_Delay(INIT_DELAYTIME);
+	
+	ADS1247_WriteReg(GPIODIR_REG,0x00); // 写入默认值
+	HAL_Delay(INIT_DELAYTIME);
+	ADS1247_WriteReg(GPIODAT_REG,0x00); // 写入默认值
+
+	ADS1247_WriteCommand(RDATAC_CMD);
+
 }
+
+
+
 
 /**
  * @brief ADS1247中断回调函数
@@ -120,7 +221,7 @@ void ADS1247_Init()
  */
 void ADS1247_Callback()
 {
-    ads1247.flag.DRDY++;
+    ads1247.flag.DRDY = ON;
 }
 
 /**
@@ -132,11 +233,18 @@ void ADS1247_Callback()
  */
 uint32_t ADS1247_getADC()
 {
-    if (ads1247.flag.DRDY == 0)
+    if (ads1247.flag.DRDY == OFF)
         return 0xFFFFFFFF;
-    ads1247.flag.DRDY--; // 自减DRDY
+    ads1247.flag.DRDY = OFF; 
+	
+//    ADS1247_WriteReg(IDAC0_REG, EXCITA_CURRENT_500uA | DRDY_MODE_DOUT_ONLY);  // 设定 500μA 激励电流
+//	ADS1247_WriteReg(IDAC1_REG,0x03); // 选择激励电流输出引脚为AIN0 AIN3
     uint8_t data[3] = {0};
-    HAL_SPI_Receive(ADS1247_SPI_Handle, data, 3, ADS1247_TIMEOUT);
+	if(HAL_SPI_Receive(ADS1247_SPI_Handle, data, 3, ADS1247_TIMEOUT) != HAL_OK)
+	{
+	HAL_Delay(1);
+	}
+    
     return (uint32_t)(data[0] << 16) | (uint16_t)(data[1] << 8) | data[0];
 }
 

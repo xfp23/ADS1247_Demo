@@ -21,6 +21,8 @@ extern "C"
 {
 #endif // __cplusplus
 
+
+#define ADS1120_USEDMA 0 // 不启用DMA编译逻辑
 // ADS1247 spi传输超时时间
 #define ADS1247_TIMEOUT 100
 
@@ -30,16 +32,16 @@ extern "C"
 #define ADS1247_SPI_Handle &hspi1
 
 // CS引脚
-#define ADS1247_CS_Port GPIOA
-#define ADS1247_CS_Pin GPIO_PIN_4
+#define ADS1247_CS_Port ADS_CS_GPIO_Port
+#define ADS1247_CS_Pin ADS_CS_Pin
 
 // start引脚
 #define ADS1247_START_Port ADS_START_GPIO_Port
 #define ADS1247_START_Pin ADS_START_Pin
 
 // Reset引脚
-#define ADS1247_RESET_Port ADS_RESET_GPIO_Port
-#define ADS1247_RESET_Pin ADS_RESET_Pin
+#define ADS1247_RESET_Port ADS_RST_GPIO_Port
+#define ADS1247_RESET_Pin ADS_RST_Pin
 
 // 拉高CS引脚
 #define ADS1247_CS_SET HAL_GPIO_WritePin(ADS1247_CS_Port, ADS1247_CS_Pin, GPIO_PIN_SET)
@@ -70,11 +72,11 @@ typedef enum
     FSC0_REG = 0x07,    // 系统增益校准
     FSC1_REG = 0x08,    // 系统增益校准
     FSC2_REG = 0x09,    // 系统增益校准
-    IDAC0_REG = 0x0A,   // 激励电流
-    IDAC1_REG = 0x0B,   // 激励电流
+    IDAC0_REG = 0x0A,   // 激励电流大小
+    IDAC1_REG = 0x0B,   // 激励电流方向
     GPIOCFG_REG = 0x0C, // GPIO配置
-    GPIODIR_REG = 0x0C, // GPIO方向
-    GPIODAT_REG = 0x0E,
+    GPIODIR_REG = 0x0D, // GPIO方向
+    GPIODAT_REG = 0x0E, // GPIO数据
 
 } ADS1247_Reg_t;
 
@@ -95,6 +97,21 @@ typedef enum
     SYSGCAL_CMD = 0x61,     // 系统增益校准
     SELFOCAL_CMD = 0x62,    // 系统自校准
 } ADS1247_Command_t;
+
+typedef enum
+{
+    ADS1247_OK,
+    ADS1247_SPIERROR, // spi通信错误
+    ADS1247_ERROR,    // 错误
+    ADS1247_INITALIZED, // 已经初始化过
+} ADS1247_Staus_t;
+
+
+typedef enum 
+{
+    ADS1247_Flag_OFF = 0x00, // 关
+    ADS1247_Flag_ON = 0x01, // 开
+} ADS1247_FlagSwitch_t;
 
 // mux0配置
 
@@ -234,8 +251,10 @@ typedef enum
 
 typedef struct
 {
-    uint16_t DRDY; // DRDY信号
-
+    ADS1247_FlagSwitch_t DRDY; // DRDY信号 只读
+#if ADS1120_USEDMA
+    ADS1247_FlagSwitch_t DMA; // 是否启用DMA
+#endif
 } ADS1247_Flag_t;
 
 typedef enum
@@ -266,8 +285,18 @@ typedef enum
 
 typedef struct
 {
-    ADS1247_SampleRate_t DR; // 数据采样速率
-    ADS1247_PGA_Gain_t PGA;  // PGA 
+    GPIO_TypeDef *port;
+    uint16_t pin;
+} ADS1247_GPIO_t;
+
+typedef struct
+{
+
+    SPI_HandleTypeDef *spi; // 硬件spi
+    ADS1247_GPIO_t CS;     // cs
+    ADS1247_GPIO_t ReSet;  // 复位引脚
+    ADS1247_GPIO_t Start;  // START引脚
+    uint16_t Timeout;       // 超时时间
 } ADS1247_Config_t;
 
 typedef union
@@ -275,19 +304,27 @@ typedef union
     struct
     {
         ADS1247_Flag_t flag;   // 标志位
-        ADS1247_Config_t conf; // 配置 此字段只读
+        ADS1247_Config_t conf; // 配置
     };
 } ADS1247_Class_t;
 
+typedef ADS1247_Class_t *ADS1247_Handle;
+
 extern volatile ADS1247_Class_t ads1247;
 
-extern uint32_t ADS1247_getADC(void);
+extern ADS1247_Staus_t ADS1247_getADC(ADS1247_Handle *handle);
 
-extern void ADS1247_Callback(void);
+extern void ADS1247_Callback(ADS1247_Handle *handle);
 
-extern void ADS1247_Init(void);
+extern ADS1247_Staus_t ADS1247_Init(ADS1247_Handle *handle);
 
-extern uint8_t ADS1247_SetDataRateAndPGA(ADS1247_SampleRate_t dataRate, ADS1247_PGA_Gain_t pgaGain);
+extern ADS1247_Staus_t ADS1247_SetDataRateAndPGA(ADS1247_Handle *handle, ADS1247_SampleRate_t dataRate, ADS1247_PGA_Gain_t pgaGain);
+
+extern ADS1247_Staus_t ADS1247_ReadReg(ADS1247_Handle *handle, ADS1247_Reg_t reg);
+
+extern ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle *handle);
+
+extern ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle *handle); // 删除ADS1247
 
 #ifdef __cplusplus
 }

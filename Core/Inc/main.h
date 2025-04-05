@@ -57,15 +57,15 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define ADS_DRDY_Pin GPIO_PIN_2
-#define ADS_DRDY_GPIO_Port GPIOA
-#define ADS_DRDY_EXTI_IRQn EXTI2_IRQn
-#define ADS_RESET_Pin GPIO_PIN_3
-#define ADS_RESET_GPIO_Port GPIOA
-#define ADS_CS_Pin GPIO_PIN_4
+#define ADS_START_Pin GPIO_PIN_11
+#define ADS_START_GPIO_Port GPIOA
+#define ADS_CS_Pin GPIO_PIN_12
 #define ADS_CS_GPIO_Port GPIOA
-#define ADS_START_Pin GPIO_PIN_0
-#define ADS_START_GPIO_Port GPIOB
+#define ADS_DRDY_Pin GPIO_PIN_15
+#define ADS_DRDY_GPIO_Port GPIOA
+#define ADS_DRDY_EXTI_IRQn EXTI15_10_IRQn
+#define ADS_RST_Pin GPIO_PIN_6
+#define ADS_RST_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

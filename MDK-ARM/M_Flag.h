@@ -3,6 +3,9 @@
 
 #include "main.h"
 #include "ADS1247.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "usart.h"
 
 #ifdef __cplusplus
 extern "C"

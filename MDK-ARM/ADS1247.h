@@ -154,36 +154,11 @@ typedef enum
     ADS1247_IDAC_OUTPUT_AIN3,
 } ADS1247_IDACOutputDIR_t; // 激励电流输出方向设置
 
-// GPIOCFG 配置
-#define GPIO0_DISABLE 0X00       // 不启用GPIO0
-#define GPIO0_APPLIED_REFP0 0x01 // GPIO0作用于REFP0
-
-#define GPIO1_DISABLE (0x00 << 1)       // 不启用GPIO1
-#define GPIO1_APPLIED_REFN0 (0x01 << 1) // GPIO1作用于REFN0
-
-#define GPIO2_DISABLE (0x00 << 2)      // 不启用gpio2
-#define GPIO2_APPLIED_AIN2 (0x01 << 2) // gpio2 作用于AIN2
-
-#define GPIO3_DISABLE (0x00 << 3)      // gpio3 不启用
-#define GPIO3_APPLIED_AIN3 (0X01 << 3) // GPIO3 作用于AIN3
-
 typedef enum
 {
     ADS1247_GPIO_OUTPUT,
     ADS1247_GPIO_INPUT,
 } ADS1247_GPIODIR_t; // GPIO方向
-// GPIODIR 配置
-#define GPIO0_DIR_OUTPUT 0x00 // GPIO0 设为输出
-#define GPIO0_DIR_INPUT 0x01  // GPIO0 设为输入
-
-#define GPIO1_DIR_OUTPUT (0x00 << 1) // GPIO1 设为输出
-#define GPIO1_DIR_INPUT (0x01 << 1)  // GPIO1 设为输入
-
-#define GPIO2_DIR_OUTPUT (0x00 << 2) // GPIO2 设为输出
-#define GPIO2_DIR_INPUT (0x01 << 2)  // GPIO2 设为输入
-
-#define GPIO3_DIR_OUTPUT (0x00 << 3) // GPIO3 设为输出
-#define GPIO3_DIR_INPUT (0x01 << 3)  // GPIO3 设为输入
 
 // GPIODAT_REG 配置
 typedef enum

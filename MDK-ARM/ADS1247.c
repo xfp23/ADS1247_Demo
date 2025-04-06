@@ -168,17 +168,17 @@ ADS1247_Staus_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t 
 	HAL_GPIO_WritePin((*handle)->conf.CS.port, (*handle)->conf.CS.pin, GPIO_PIN_RESET);		// 拉高START确保能配置寄存器
 	ADS1247_Staus_t ret = ADS1247_WriteCommand(handle, WAKEUP_CMD);
 
-	ret = ADS1247_WriteReg(handle, MUX0_REG, MUX_SP_AIN1 | MUX_SN_AIN2 | BSC_OFF); // 配置采样通道和烧毁电流源 0b00001010
+	ret = ADS1247_SetMuxAndBSC(handle, ADS1247_MUX_AIN1, ADS1247_MUX_AIN2, ADS1247_BSC_OFF);
 
-	ret = ADS1247_WriteReg(handle, VBIAS_REG, VBIAS_AIN0_DISABLE | VBIAS_AIN1_DISABLE | VBIAS_AIN2_DISABLE | VBIAS_AIN3_DISABLE); // 配置偏置电压 0b00000000
+	ret = ADS1247_ConfigureVBIAS(handle, ADS1247_VBIAS_DISABLE, ADS1247_VBIAS_DISABLE, ADS1247_VBIAS_DISABLE, ADS1247_VBIAS_DISABLE); // 配置偏置电压 0b00000000
 
-	ret = ADS1247_WriteReg(handle, MUX1_REG, NORMAL_MODEL | REFSELT_REFP0_REFN0 | INTERNAL_ALWAYS_ON); // 选择外部参考，运行在正常模式，内部参考打开 0b00100000
+	ret = ADS1247_SetReference(handle, ADS1247_REFP0_REFN0, ADS1247_ALWAYS_ON);
 
-	ret = ADS1247_WriteReg(handle, SYS0_REG, DR_5SPS | PGA_1X); // 配置采样速率和PGA 0b00000110
+	ret = ADS1247_SetDataRateAndPGA(handle, SAMPLE_RATE_5SPS, PGA_GAIN_1X);
 
-	ret = ADS1247_WriteReg(handle, IDAC0_REG, EXCITA_CURRENT_500uA | DRDY_MODE_DOUT_ONLY); // 配置激励电流为500ua 以及DRDY行为 00000100
+	ret = ADS1247_SetIDACWithDRDYMode(handle, ADS1247_EXCITA_CURRENT_OFF, ADS1247_DRDY_ONLY);
 
-	ret = ADS1247_WriteReg(handle, IDAC1_REG, (IDAC1_OUTPUT1_AIN0 | IDAC1_OUTPUT2_AIN3)); // 选择 AIN0 AIN3输出激励电流 0b11001111
+	ret = ADS1247_SetIDACOutputPin(handle, ADS1247_IDAC_OUTPUT_AIN0, ADS1247_IDAC_OUTPUT_AIN0);
 
 	ret = ADS1247_WriteReg(handle, GPIOCFG_REG, GPIO0_DISABLE | GPIO1_DISABLE | GPIO2_DISABLE | GPIO3_DISABLE); // 禁用GPIO 0b00000000
 
@@ -189,6 +189,21 @@ ADS1247_Staus_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t 
 	ret = ADS1247_WriteCommand(handle, RDATAC_CMD);
 
 	return ret;
+}
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @param Output1
+ * @param Output2
+ * @return ADS1247_Staus_t
+ */
+ADS1247_Staus_t ADS1247_SetIDACOutputPin(ADS1247_Handle_t *handle, ADS1247_IDACOutputDIR_t Output1, ADS1247_IDACOutputDIR_t Output2)
+{
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR;
+	return ADS1247_WriteReg(handle, IDAC1_REG, (uint8_t)((Output1 << 4) | (Output2)));
 }
 
 /**
@@ -242,7 +257,7 @@ ADS1247_Staus_t ADS1247_SetDataRateAndPGA(ADS1247_Handle_t *handle, ADS1247_Samp
 {
 	if (handle == NULL || *handle == NULL)
 		return ADS1247_ERROR;
-	return ADS1247_WriteReg(handle, SYS0_REG, (uint8_t)dataRate | (uint8_t)pgaGain);
+	return ADS1247_WriteReg(handle, SYS0_REG, (uint8_t)dataRate | (uint8_t)(pgaGain << 4));
 }
 
 /**
@@ -264,16 +279,105 @@ ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle_t *handle)
 
 /**
  * @brief 配置偏置电压
- * 
+ *
  * @param handle 句柄
- * @param VBIAS_AIN0 
- * @param VBIAS_AIN1 
- * @param VBIAS_AIN2 
- * @param VBIAS_AIN3 
- * @return ADS1247_Staus_t 
+ * @param VBIAS_AIN0
+ * @param VBIAS_AIN1
+ * @param VBIAS_AIN2
+ * @param VBIAS_AIN3
+ * @return ADS1247_Staus_t
  */
-ADS1247_Staus_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t *handle,uint8_t VBIAS_AIN0,uint8_t VBIAS_AIN1,uint8_t VBIAS_AIN2,uint8_t VBIAS_AIN3)
+ADS1247_Staus_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t *handle, ADS1247_VBIASAINx_t VBIAS_AIN0, ADS1247_VBIASAINx_t VBIAS_AIN1, ADS1247_VBIASAINx_t VBIAS_AIN2, ADS1247_VBIASAINx_t VBIAS_AIN3)
 {
-	if(handle == NULL || *handle == NULL) return ADS1247_ERROR;
-	return ADS1247_WriteReg(handle,VBIAS_REG,VBIAS_AIN0 | VBIAS_AIN1 | VBIAS_AIN2 | VBIAS_AIN3);
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR;
+	return ADS1247_WriteReg(handle, VBIAS_REG, VBIAS_AIN0 | (VBIAS_AIN1 << 1) | (VBIAS_AIN2 << 2) | (VBIAS_AIN3 << 3));
+}
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @param IDAC
+ * @param DRDY_Mode
+ * @return ADS1247_Staus_t
+ */
+ADS1247_Staus_t ADS1247_SetIDACWithDRDYMode(ADS1247_Handle_t *handle, ADS1247_EXCITACurrent_t IDAC, ADS1247_DRDYMode_t DRDY_Mode)
+{
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR;
+	return ADS1247_WriteReg(handle, IDAC0_REG, IDAC | DRDY_Mode << 3);
+}
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @param Mux_SP
+ * @param Mux_SN
+ * @param BSC
+ * @return ADS1247_Staus_t
+ */
+ADS1247_Staus_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t *handle, ADS1247_Mux_t Mux_SP, ADS1247_Mux_t Mux_SN, ADS1247_BSC_t BSC)
+{
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR;
+	return ADS1247_WriteReg(handle, MUX0_REG, (uint8_t)(Mux_SP << 3) | (uint8_t)Mux_SN | (uint8_t)(BSC << 6));
+}
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @param vref
+ * @param internal
+ * @return ADS1247_Staus_t
+ */
+ADS1247_Staus_t ADS1247_SetReference(ADS1247_Handle_t *handle, ADS1247_VREF_t vref, ADS1247_Internal_t internal)
+{
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR;
+	return ADS1247_WriteReg(handle, MUX1_REG, 0x00 | (uint8_t)(vref << 3) | (uint8_t)(internal << 5));
+}
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @param pin
+ * @param data
+ * @return ADS1247_Staus_t
+ */
+ADS1247_Staus_t ADS1247_GPIO_WritePin(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIOData_t data)
+{
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR;
+	uint8_t Reg_data = 0;
+	ADS1247_Staus_t ret = ADS1247_ReadReg(handle, GPIODAT_REG, &Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
+	Reg_data &= ~(1 << pin);
+	Reg_data |= (data << pin);
+	return ADS1247_WriteReg(handle, GPIODAT_REG, Reg_data);
+}
+
+/**
+ * @brief
+ *
+ * @param handle
+ * @param pin
+ * @param DIR
+ * @return ADS1247_Staus_t
+ */
+ADS1247_Staus_t ADS1247_GPIO_Config(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIODIR_t DIR)
+{
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR;
+	uint8_t Reg_data = 0;
+	ADS1247_Staus_t ret = ADS1247_ReadReg(handle, GPIODIR_REG, &Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
+	Reg_data &= ~(1 << pin);
+	Reg_data |= (DIR << pin);
+	return ADS1247_WriteReg(handle, GPIODIR_REG, Reg_data);
 }

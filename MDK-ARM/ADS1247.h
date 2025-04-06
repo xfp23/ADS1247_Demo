@@ -21,7 +21,6 @@ extern "C"
 {
 #endif // __cplusplus
 
-
 #define ADS1120_USEDMA 0 // 不启用DMA编译逻辑
 
 // 寄存器枚举
@@ -72,109 +71,88 @@ typedef enum
     ADS1247_DRDYERROR,
 } ADS1247_Staus_t;
 
-
-typedef enum 
+typedef enum
 {
     ADS1247_Flag_OFF = 0x00, // 关
-    ADS1247_Flag_ON = 0x01, // 开
+    ADS1247_Flag_ON = 0x01,  // 开
 } ADS1247_FlagSwitch_t;
 
 // mux0配置
 
-// ADC反向输入选择
-#define MUX_SN_AIN0 0x00 // AIN0负输入
-#define MUX_SN_AIN1 0x01 // AIN1负输入
-#define MUX_SN_AIN2 0x02 // AIN2负输入
-#define MUX_SN_AIN3 0x03 // AIN3负输入
+typedef enum
+{
+    ADS1247_MUX_AIN0,
+    ADS1247_MUX_AIN1,
+    ADS1247_MUX_AIN2,
+    ADS1247_MUX_AIN3,
+} ADS1247_Mux_t;
 
-// ADC正向输入选择
-#define MUX_SP_AIN0 (0x00 << 3) // AIN0正输入
-#define MUX_SP_AIN1 (0x01 << 3) // AIN1正输入
-#define MUX_SP_AIN2 (0x02 << 3) // AIN2正输入
-#define MUX_SP_AIN3 (0x04 << 3) // AIN3正输入
-
-// 电流源配置
-#define BSC_OFF (0x00 << 6)   // 关闭电流源
-#define BSC_0_5UA (0x01 << 6) // 0.5uA
-#define BSC_2UA (0x02 << 6)   // 2uA
-#define BSC_10UA (0x03 << 6)  // 10uA
+typedef enum
+{
+    ADS1247_BSC_OFF,
+    ADS1247_BSC_0_5UA,
+    ADS1247_BSC_2UA,
+    ADS1247_BSC_10UA
+} ADS1247_BSC_t; // 烧毁电流源选项
 
 // VBIAS 偏置电压配置
-
-#define VBIAS_AIN0_DISABLE 0x00 // 禁用 AIN0 的偏置电压
-#define VBIAS_AIN0_ENABLE 0x01  // 将中间电源(AVDD + AVSSE) / 2 的偏置电压施加到AIN0
-
-#define VBIAS_AIN1_DISABLE (0x00 << 1) // 禁用 AIN1 的偏置电压
-#define VBIAS_AIN1_ENABLE (0x01 << 1)  // 将中间电源(AVDD + AVSSE) / 2 的偏置电压施加到AIN1
-
-#define VBIAS_AIN2_DISABLE (0x00 << 2) // 禁用 AIN1 的偏置电压
-#define VBIAS_AIN2_ENABLE (0x01 << 2)  // 将中间电源(AVDD + AVSSE) / 2 的偏置电压施加到AIN2
-
-#define VBIAS_AIN3_DISABLE (0x00 << 3) // 禁用 AIN1 的偏置电压
-#define VBIAS_AIN3_ENABLE (0x01 << 3)  // 将中间电源(AVDD + AVSSE) / 2 的偏置电压施加到AIN3
+typedef enum
+{
+    ADS1247_VBIAS_DISABLE, // 禁用 AIN0 的偏置电压
+    ADS1247VBIAS_ENABLE,   // 将中间电源(AVDD + AVSSE) / 2 的偏置电压施加到AIN0
+} ADS1247_VBIASAINx_t;     // 偏置电压
 
 // MUX1 配置
-#define NORMAL_MODEL 0x00 // 正常模式
-#define OFFSET_CALIB 0x01 // 偏移校准
-#define GAIN_CALIB 0x02   // 增益校准
-#define TEMP_MEASURE 0x03 // 温度测量
+typedef enum
+{
+    ADS1247_NORMAL,       // 正常模式
+    ADS1247_OFFSET_CALIB, // 偏移校准
+    ADS1247_GAIN_CALIB,   // 增益校准
+    ADS1247_TEMP_MEASURE, // 温度测量
+} ADS1247_RunMode_t;      // 运行模式
 
-#define REFSELT_REFP0_REFN0 (0x00 << 3)         // 选择REFP0 和 REFN0的输入参考 (default)
-#define REFSELT_INTERNAL (0x02 << 3)            // 选择内部参考电压
-#define REFSELT_INTERNAL_REFPO_REFN0 0x03 << 3 )// 选择内部参考并内部连接到 REFP0 和 REFN0 输入引脚
+typedef enum
+{
+    ADS1247_REFP0_REFN0,          // 选择REFP0 和 REFN0的输入参考 (default)
+    ADS1247_VREF_NOP,             // 空指令
+    ADS1247_INTERNAL,             // 选择内部参考电压
+    ADS1247_INTERNAL_REFP0_REFN0, // 选择内部参考并内部连接到 REFP0 和 REFN0 输入引脚
+} ADS1247_VREF_t;                 // ref配置
 
-#define INTERNAL_ALWAYS_OFF (0x00 << 5)  // 内部参考总是关闭
-#define INTERNAL_ALWAYS_ON (0x01 << 5)   // 内部参考总是打开
-#define INTERNAL_REF_DISABLE (0x02 << 5) // 内部参考在 START 低电平或 SLEEP 命令时关闭
+typedef enum
+{
+    ADS1247_ALWAYS_OFF,  // 内部参考总是关闭
+    ADS1247_ALWAYS_ON,   // 内部参考总是打开
+    ADS1247_REF_DISABLE, // 内部参考在 START 低电平或 SLEEP 命令时关闭
+} ADS1247_Internal_t;    // 内部参考设置
 
-// SYS0配置
+typedef enum
+{
+    ADS1247_EXCITA_CURRENT_OFF,    // 关闭激励电流
+    ADS1247_EXCITA_CURRENT_50uA,   // 激励电流50uA
+    ADS1247_EXCITA_CURRENT_100uA,  // 激励电流100uA
+    ADS1247_EXCITA_CURRENT_250uA,  // 激励电流250uA
+    ADS1247_EXCITA_CURRENT_500uA,  // 激励电流500uA
+    ADS1247_EXCITA_CURRENT_750uA,  // 激励电流750uA
+    ADS1247_EXCITA_CURRENT_1000uA, // 激励电流1000uA
+    ADS1247_EXCITA_CURRENT_1500uA, // 激励电流1500uA
+} ADS1247_EXCITACurrent_t;         // 激励电流大小
 
-#define DR_5SPS 0x00    // 每秒五次 (default)
-#define DR_10SPS 0x01   // 每秒十次
-#define DR_20SPS 0x02   // 每秒20次
-#define DR_40SPS 0x03   // 每秒2000次
-#define DR_80SPS 0x04   // 每秒2000次
-#define DR_160SPS 0x05  // 每秒2000次
-#define DR_320SPS 0x06  // 每秒2000次
-#define DR_640SPS 0x07  // 每秒2000次
-#define DR_1000SPS 0x08 // 每秒2000次
-#define DR_2000SPS 0x09 // 每秒2000次
-
-#define PGA_1X (0x00 << 4) // (default)
-#define PGA_2X (0x01 << 4)
-#define PGA_4X (0x02 << 4)
-#define PGA_8X (0x03 << 4)
-#define PGA_16X (0x04 << 4)
-#define PGA_32X (0x05 << 4)
-#define PGA_64X (0x06 << 4)
-#define PGA_128X (0x07 << 4)
-
-// IDAC0 配置
-#define EXCITA_CURRENT_OFF 0x00    // 关闭激励电流
-#define EXCITA_CURRENT_50uA 0x01   // 激励电流50uA
-#define EXCITA_CURRENT_100uA 0x02  // 激励电流100uA
-#define EXCITA_CURRENT_250uA 0x03  // 激励电流250uA
-#define EXCITA_CURRENT_500uA 0x04  // 激励电流500uA
-#define EXCITA_CURRENT_750uA 0x05  // 激励电流750uA
-#define EXCITA_CURRENT_1000uA 0x06 // 激励电流1000uA
-#define EXCITA_CURRENT_1500uA 0x07 // 激励电流1500uA
-
-#define DRDY_MODE_DOUT_ONLY (0x00 << 3) // DOUT引脚只做数据输出引脚，不做DRDY信号 (default)
-#define DRDY_MODE_DOUT_DRDY (0x01 << 3) // DOUT引脚既做数据输出，又做DRDY信号
+typedef enum
+{
+    ADS1247_DRDY_ONLY, // DOUT引脚只做数据输出引脚，不做DRDY信号 (default)
+    ADS1247_DRDY_DOUT, // DOUT引脚既做数据输出，又做DRDY信号
+} ADS1247_DRDYMode_t;
 
 // IDAC1 配置
 
-// 选择第二个激励电流源
-#define IDAC1_OUTPUT2_AIN0 0x00 // 选择AIN0引脚输出激励电流
-#define IDAC1_OUTPUT2_AIN1 0x01 // 选择AIN1引脚输出激励电流
-#define IDAC1_OUTPUT2_AIN2 0x02 // 选择AIN2引脚输出激励电流
-#define IDAC1_OUTPUT2_AIN3 0x03 // 选择AIN3引脚输出激励电流
-
-// 选择第一个激励电流源 这里宏定义按照数据手册来讲是对的，IDAX代表操作的额寄存器号，数据手册中激励电流的输出并不是两个独立的
-#define IDAC1_OUTPUT1_AIN0 (0x00 << 4) // 选择AIN0引脚输出激励电流
-#define IDAC1_OUTPUT1_AIN1 (0x01 << 4) // 选择AIN1引脚输出激励电流
-#define IDAC1_OUTPUT1_AIN2 (0x02 << 4) // 选择AIN2引脚输出激励电流
-#define IDAC1_OUTPUT1_AIN3 (0x03 << 4) // 选择AIN3引脚输出激励电流
+typedef enum
+{
+    ADS1247_IDAC_OUTPUT_AIN0,
+    ADS1247_IDAC_OUTPUT_AIN1,
+    ADS1247_IDAC_OUTPUT_AIN2,
+    ADS1247_IDAC_OUTPUT_AIN3,
+} ADS1247_IDACOutputDIR_t; // 激励电流输出方向设置
 
 // GPIOCFG 配置
 #define GPIO0_DISABLE 0X00       // 不启用GPIO0
@@ -189,6 +167,11 @@ typedef enum
 #define GPIO3_DISABLE (0x00 << 3)      // gpio3 不启用
 #define GPIO3_APPLIED_AIN3 (0X01 << 3) // GPIO3 作用于AIN3
 
+typedef enum
+{
+    ADS1247_GPIO_OUTPUT,
+    ADS1247_GPIO_INPUT,
+} ADS1247_GPIODIR_t; // GPIO方向
 // GPIODIR 配置
 #define GPIO0_DIR_OUTPUT 0x00 // GPIO0 设为输出
 #define GPIO0_DIR_INPUT 0x01  // GPIO0 设为输入
@@ -203,17 +186,19 @@ typedef enum
 #define GPIO3_DIR_INPUT (0x01 << 3)  // GPIO3 设为输入
 
 // GPIODAT_REG 配置
-#define GPIO0_DAT_LOW 0x00  // 向 GPIO0 写入低电平
-#define GPIO0_DAT_HIGH 0x01 // 向 GPIO0 写入高电平
+typedef enum
+{
+    ADS1247_GPIO_LOW,
+    ADS1247_GPIO_HIGH,
+} ADS1247_GPIOData_t;
 
-#define GPIO1_DAT_LOW (0x00 << 1)  // 向 GPIO1 写入低电平
-#define GPIO1_DAT_HIGH (0x01 << 1) // 向 GPIO1 写入高电平
-
-#define GPIO2_DAT_LOW (0x00 << 2)  // 向 GPIO2 写入低电平
-#define GPIO2_DAT_HIGH (0x01 << 2) // 向 GPIO2 写入高电平
-
-#define GPIO3_DAT_LOW (0x00 << 3)  // 向 GPIO3 写入低电平
-#define GPIO3_DAT_HIGH (0x01 << 3) // 向 GPIO3 写入高电平
+typedef enum
+{
+    ADS1247_GPIO0,
+    ADS1247_GPIO1,
+    ADS1247_GPIO2,
+    ADS1247_GPIO3,
+} ADS1247_Pin_t;
 
 typedef struct
 {
@@ -225,29 +210,29 @@ typedef struct
 
 typedef enum
 {
-    SAMPLE_RATE_5SPS = DR_5SPS,       // /< 每秒 5 次采样
-    SAMPLE_RATE_10SPS = DR_10SPS,     // /< 每秒 10 次采样
-    SAMPLE_RATE_20SPS = DR_20SPS,     // /< 每秒 20 次采样
-    SAMPLE_RATE_40SPS = DR_40SPS,     // /< 每秒 40 次采样
-    SAMPLE_RATE_80SPS = DR_80SPS,     // /< 每秒 80 次采样
-    SAMPLE_RATE_160SPS = DR_160SPS,   // /< 每秒 160 次采样
-    SAMPLE_RATE_320SPS = DR_320SPS,   // /< 每秒 320 次采样
-    SAMPLE_RATE_640SPS = DR_640SPS,   // /< 每秒 640 次采样
-    SAMPLE_RATE_1000SPS = DR_1000SPS, // /< 每秒 1000 次采样
-    SAMPLE_RATE_2000SPS = DR_2000SPS, // /< 每秒 2000 次采样
-} ADS1247_SampleRate_t;               // 采样速率枚举
+    SAMPLE_RATE_5SPS,    // /< 每秒 5 次采样
+    SAMPLE_RATE_10SPS,   // /< 每秒 10 次采样
+    SAMPLE_RATE_20SPS,   // /< 每秒 20 次采样
+    SAMPLE_RATE_40SPS,   // /< 每秒 40 次采样
+    SAMPLE_RATE_80SPS,   // /< 每秒 80 次采样
+    SAMPLE_RATE_160SPS,  // /< 每秒 160 次采样
+    SAMPLE_RATE_320SPS,  // /< 每秒 320 次采样
+    SAMPLE_RATE_640SPS,  // /< 每秒 640 次采样
+    SAMPLE_RATE_1000SPS, // /< 每秒 1000 次采样
+    SAMPLE_RATE_2000SPS,
+} ADS1247_SampleRate_t; // 采样速率枚举
 
 typedef enum
 {
-    PGA_GAIN_1X = PGA_1X,     // PGA 1倍增益
-    PGA_GAIN_2X = PGA_2X,     // PGA 2倍增益
-    PGA_GAIN_4X = PGA_4X,     // PGA 4倍增益
-    PGA_GAIN_8X = PGA_8X,     // PGA 8倍增益
-    PGA_GAIN_16X = PGA_16X,   // PGA 16倍增益
-    PGA_GAIN_32X = PGA_32X,   // PGA 32倍增益
-    PGA_GAIN_64X = PGA_64X,   // PGA 64倍增益
-    PGA_GAIN_128X = PGA_128X, // PGA 128倍增益
-} ADS1247_PGA_Gain_t;         // PGA增益枚举
+    PGA_GAIN_1X,   // PGA 1倍增益
+    PGA_GAIN_2X,   // PGA 2倍增益
+    PGA_GAIN_4X,   // PGA 4倍增益
+    PGA_GAIN_8X,   // PGA 8倍增益
+    PGA_GAIN_16X,  // PGA 16倍增益
+    PGA_GAIN_32X,  // PGA 32倍增益
+    PGA_GAIN_64X,  // PGA 64倍增益
+    PGA_GAIN_128X, // PGA 128倍增ADS1247_PGA_Gain_t;         // PGA增益枚举
+} ADS1247_PGA_Gain_t;
 
 typedef struct
 {
@@ -259,9 +244,9 @@ typedef struct
 {
 
     SPI_HandleTypeDef *spi; // 硬件spi
-    ADS1247_GPIO_t CS;     // cs
-    ADS1247_GPIO_t ReSet;  // 复位引脚
-    ADS1247_GPIO_t Start;  // START引脚
+    ADS1247_GPIO_t CS;      // cs
+    ADS1247_GPIO_t ReSet;   // 复位引脚
+    ADS1247_GPIO_t Start;   // START引脚
     uint16_t Timeout;       // 超时时间
 } ADS1247_Config_t;
 
@@ -292,6 +277,7 @@ extern ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle_t *handle);
 
 extern ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle_t *handle); // 删除ADS1247
 
+extern ADS1247_Staus_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t *handle, ADS1247_VBIASAINx_t VBIAS_AIN0, ADS1247_VBIASAINx_t VBIAS_AIN1, ADS1247_VBIASAINx_t VBIAS_AIN2, ADS1247_VBIASAINx_t VBIAS_AIN3);
 #ifdef __cplusplus
 }
 #endif // __cplusplus

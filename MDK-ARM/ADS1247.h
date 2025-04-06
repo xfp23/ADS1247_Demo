@@ -236,7 +236,6 @@ typedef union
 
 typedef ADS1247_Class_t *ADS1247_Handle_t;
 
-extern volatile ADS1247_Class_t ads1247;
 
 extern ADS1247_Staus_t ADS1247_getADC(ADS1247_Handle_t *handle, uint32_t *buffer);
 

@@ -23,40 +23,6 @@ extern "C"
 
 
 #define ADS1120_USEDMA 0 // 不启用DMA编译逻辑
-// ADS1247 spi传输超时时间
-#define ADS1247_TIMEOUT 100
-
-// 硬件端口
-
-// 硬件spi 时钟低极性,第二边沿采集
-#define ADS1247_SPI_Handle &hspi1
-
-// CS引脚
-#define ADS1247_CS_Port ADS_CS_GPIO_Port
-#define ADS1247_CS_Pin ADS_CS_Pin
-
-// start引脚
-#define ADS1247_START_Port ADS_START_GPIO_Port
-#define ADS1247_START_Pin ADS_START_Pin
-
-// Reset引脚
-#define ADS1247_RESET_Port ADS_RST_GPIO_Port
-#define ADS1247_RESET_Pin ADS_RST_Pin
-
-// 拉高CS引脚
-#define ADS1247_CS_SET HAL_GPIO_WritePin(ADS1247_CS_Port, ADS1247_CS_Pin, GPIO_PIN_SET)
-// 拉低CS引脚
-#define ADS1247_CS_CLR HAL_GPIO_WritePin(ADS1247_CS_Port, ADS1247_CS_Pin, GPIO_PIN_RESET)
-
-// 拉高start引脚
-#define ADS1247_START_SET HAL_GPIO_WritePin(ADS1247_START_Port, ADS1247_START_Pin, GPIO_PIN_SET)
-// 拉低start引脚
-#define ADS1247_START_CLR HAL_GPIO_WritePin(ADS1247_START_Port, ADS1247_START_Pin, GPIO_PIN_RESET)
-
-// 拉高Reset引脚
-#define ADS1247_RESET_SET HAL_GPIO_WritePin(ADS1247_RESET_Port, ADS1247_RESET_Pin, GPIO_PIN_SET)
-// 拉低start引脚
-#define ADS1247_RESET_CLR HAL_GPIO_WritePin(ADS1247_RESET_Port, ADS1247_RESET_Pin, GPIO_PIN_RESET)
 
 // 寄存器枚举
 // Table 29. ADS1247 and ADS1248 Register Map
@@ -103,7 +69,7 @@ typedef enum
     ADS1247_OK,
     ADS1247_SPIERROR, // spi通信错误
     ADS1247_ERROR,    // 错误
-    ADS1247_INITALIZED, // 已经初始化过
+    ADS1247_DRDYERROR,
 } ADS1247_Staus_t;
 
 
@@ -308,23 +274,23 @@ typedef union
     };
 } ADS1247_Class_t;
 
-typedef ADS1247_Class_t *ADS1247_Handle;
+typedef ADS1247_Class_t *ADS1247_Handle_t;
 
 extern volatile ADS1247_Class_t ads1247;
 
-extern ADS1247_Staus_t ADS1247_getADC(ADS1247_Handle *handle);
+extern ADS1247_Staus_t ADS1247_getADC(ADS1247_Handle_t *handle, uint32_t *buffer);
 
-extern void ADS1247_Callback(ADS1247_Handle *handle);
+extern ADS1247_Staus_t ADS1247_Callback(ADS1247_Handle_t *handle);
 
-extern ADS1247_Staus_t ADS1247_Init(ADS1247_Handle *handle);
+extern ADS1247_Staus_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t *conf);
 
-extern ADS1247_Staus_t ADS1247_SetDataRateAndPGA(ADS1247_Handle *handle, ADS1247_SampleRate_t dataRate, ADS1247_PGA_Gain_t pgaGain);
+extern ADS1247_Staus_t ADS1247_SetDataRateAndPGA(ADS1247_Handle_t *handle, ADS1247_SampleRate_t dataRate, ADS1247_PGA_Gain_t pgaGain);
 
-extern ADS1247_Staus_t ADS1247_ReadReg(ADS1247_Handle *handle, ADS1247_Reg_t reg);
+extern ADS1247_Staus_t ADS1247_Readbyte(ADS1247_Handle_t *handle, uint8_t *data, size_t size);
 
-extern ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle *handle);
+extern ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle_t *handle);
 
-extern ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle *handle); // 删除ADS1247
+extern ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle_t *handle); // 删除ADS1247
 
 #ifdef __cplusplus
 }

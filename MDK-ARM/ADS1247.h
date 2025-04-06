@@ -253,6 +253,18 @@ extern ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle_t *handle);
 extern ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle_t *handle); // 删除ADS1247
 
 extern ADS1247_Staus_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t *handle, ADS1247_VBIASAINx_t VBIAS_AIN0, ADS1247_VBIASAINx_t VBIAS_AIN1, ADS1247_VBIASAINx_t VBIAS_AIN2, ADS1247_VBIASAINx_t VBIAS_AIN3);
+
+extern ADS1247_Staus_t ADS1247_GPIO_Config(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIODIR_t DIR);
+
+extern ADS1247_Staus_t ADS1247_GPIO_WritePin(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIOData_t data);
+
+extern ADS1247_Staus_t ADS1247_SetReference(ADS1247_Handle_t *handle, ADS1247_VREF_t vref, ADS1247_Internal_t internal);
+
+extern ADS1247_Staus_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t *handle, ADS1247_Mux_t Mux_SP, ADS1247_Mux_t Mux_SN, ADS1247_BSC_t BSC);
+
+extern ADS1247_Staus_t ADS1247_SetIDACWithDRDYMode(ADS1247_Handle_t *handle, ADS1247_EXCITACurrent_t IDAC, ADS1247_DRDYMode_t DRDY_Mode);
+
+extern ADS1247_Staus_t ADS1247_SetIDACOutputPin(ADS1247_Handle_t *handle, ADS1247_IDACOutputDIR_t Output1, ADS1247_IDACOutputDIR_t Output2);
 #ifdef __cplusplus
 }
 #endif // __cplusplus

@@ -180,7 +180,7 @@ ADS1247_Staus_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t 
 
 	ret = ADS1247_SetIDACOutputPin(handle, ADS1247_IDAC_OUTPUT_AIN0, ADS1247_IDAC_OUTPUT_AIN0);
 
-	ret = ADS1247_WriteReg(handle, GPIOCFG_REG, GPIO0_DISABLE | GPIO1_DISABLE | GPIO2_DISABLE | GPIO3_DISABLE); // 禁用GPIO 0b00000000
+	ret = ADS1247_WriteReg(handle, GPIOCFG_REG,0x00); // 禁用GPIO 0b00000000
 
 	ret = ADS1247_WriteReg(handle, GPIODIR_REG, 0x00);
 
@@ -380,4 +380,14 @@ ADS1247_Staus_t ADS1247_GPIO_Config(ADS1247_Handle_t *handle, ADS1247_Pin_t pin,
 	Reg_data &= ~(1 << pin);
 	Reg_data |= (DIR << pin);
 	return ADS1247_WriteReg(handle, GPIODIR_REG, Reg_data);
+}
+
+/**
+ * @brief 今天太晚了，明天写这最后一个API以及上面的注释细节
+ * 
+ * @return ADS1247_Staus_t 
+ */
+ADS1247_Staus_t ADS1247_GPIO_Reset()
+{
+
 }

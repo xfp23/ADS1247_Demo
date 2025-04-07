@@ -34,12 +34,12 @@ ADS1247_Status_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_Delete(ADS1247_Handle_t handle);
+ADS1247_Status_t ADS1247_Delete(ADS1247_Handle_t *handle);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 
 ### 返回值
 
@@ -55,12 +55,12 @@ ADS1247_Status_t ADS1247_Delete(ADS1247_Handle_t handle);
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_Reset(ADS1247_Handle_t handle);
+ADS1247_Status_t ADS1247_Reset(ADS1247_Handle_t *handle);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 
 ### 返回值
 
@@ -76,12 +76,12 @@ ADS1247_Status_t ADS1247_Reset(ADS1247_Handle_t handle);
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_Writebyte(ADS1247_Handle_t handle, uint8_t *data, size_t size);
+ADS1247_Status_t ADS1247_Writebyte(ADS1247_Handle_t *handle, uint8_t *data, size_t size);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `data`: 要写入的数据。
 - `size`: 数据的大小（单位：字节）。
 
@@ -100,12 +100,12 @@ ADS1247_Status_t ADS1247_Writebyte(ADS1247_Handle_t handle, uint8_t *data, size_
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_Readbyte(ADS1247_Handle_t handle, uint8_t *data, size_t size);
+ADS1247_Status_t ADS1247_Readbyte(ADS1247_Handle_t *handle, uint8_t *data, size_t size);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `data`: 存储读取数据的缓冲区。
 - `size`: 要读取的数据大小（单位：字节）。
 
@@ -124,12 +124,12 @@ ADS1247_Status_t ADS1247_Readbyte(ADS1247_Handle_t handle, uint8_t *data, size_t
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_WriteCommand(ADS1247_Handle_t handle, ADS1247_Command_t cmd);
+ADS1247_Status_t ADS1247_WriteCommand(ADS1247_Handle_t *handle, ADS1247_Command_t cmd);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `cmd`: 要发送的命令。
 
 ### 返回值
@@ -146,12 +146,12 @@ ADS1247_Status_t ADS1247_WriteCommand(ADS1247_Handle_t handle, ADS1247_Command_t
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_WriteReg(ADS1247_Handle_t handle, uint8_t reg, uint8_t conf);
+ADS1247_Status_t ADS1247_WriteReg(ADS1247_Handle_t *handle, uint8_t reg, uint8_t conf);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `reg`: 目标寄存器。
 - `conf`: 配置字节。
 
@@ -169,12 +169,12 @@ ADS1247_Status_t ADS1247_WriteReg(ADS1247_Handle_t handle, uint8_t reg, uint8_t 
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_ReadReg(ADS1247_Handle_t handle, uint8_t reg, uint8_t *buffer);
+ADS1247_Status_t ADS1247_ReadReg(ADS1247_Handle_t *handle, uint8_t reg, uint8_t *buffer);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `reg`: 要读取的寄存器。
 - `buffer`: 存储读取数据的缓冲区。
 
@@ -192,12 +192,12 @@ ADS1247_Status_t ADS1247_ReadReg(ADS1247_Handle_t handle, uint8_t reg, uint8_t *
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_getADC(ADS1247_Handle_t handle, uint32_t *buffer);
+ADS1247_Status_t ADS1247_getADC(ADS1247_Handle_t *handle, uint32_t *buffer);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `buffer`: 存储ADC结果的缓冲区。
 
 ### 返回值
@@ -215,12 +215,12 @@ ADS1247_Status_t ADS1247_getADC(ADS1247_Handle_t handle, uint32_t *buffer);
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_SetDataRateAndPGA(ADS1247_Handle_t handle, ADS1247_SampleRate_t dataRate, ADS1247_PGA_Gain_t pgaGain);
+ADS1247_Status_t ADS1247_SetDataRateAndPGA(ADS1247_Handle_t *handle, ADS1247_SampleRate_t dataRate, ADS1247_PGA_Gain_t pgaGain);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `dataRate`: 数据采样率。
 - `pgaGain`: PGA增益。
 
@@ -238,7 +238,7 @@ ADS1247_Status_t ADS1247_SetDataRateAndPGA(ADS1247_Handle_t handle, ADS1247_Samp
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t handle,
+ADS1247_Status_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t *handle,
                                         ADS1247_VBIASAINx_t VBIAS_AIN0,
                                         ADS1247_VBIASAINx_t VBIAS_AIN1,
                                         ADS1247_VBIASAINx_t VBIAS_AIN2,
@@ -247,7 +247,7 @@ ADS1247_Status_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t handle,
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `VBIAS_AIN0`: AIN0的偏置电压配置。
 - `VBIAS_AIN1`: AIN1的偏置电压配置。
 - `VBIAS_AIN2`: AIN2的偏置电压配置。
@@ -267,12 +267,12 @@ ADS1247_Status_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t handle,
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_SetIDACOutputPin(ADS1247_Handle_t handle, ADS1247_IDACOutputDIR_t Output1, ADS1247_IDACOutputDIR_t Output2);
+ADS1247_Status_t ADS1247_SetIDACOutputPin(ADS1247_Handle_t *handle, ADS1247_IDACOutputDIR_t Output1, ADS1247_IDACOutputDIR_t Output2);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `Output1`: 第一个IDAC输出引脚。
 - `Output2`: 第二个IDAC输出引脚。
 
@@ -290,12 +290,12 @@ ADS1247_Status_t ADS1247_SetIDACOutputPin(ADS1247_Handle_t handle, ADS1247_IDACO
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_SetIDACWithDRDYMode(ADS1247_Handle_t handle, ADS1247_EXCITACurrent_t IDAC, ADS1247_DRDYMode_t DRDY_Mode);
+ADS1247_Status_t ADS1247_SetIDACWithDRDYMode(ADS1247_Handle_t *handle, ADS1247_EXCITACurrent_t IDAC, ADS1247_DRDYMode_t DRDY_Mode);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `IDAC`: IDAC电流配置。
 - `DRDY_Mode`: DRDY模式。
 
@@ -313,12 +313,12 @@ ADS1247_Status_t ADS1247_SetIDACWithDRDYMode(ADS1247_Handle_t handle, ADS1247_EX
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t handle, ADS1247_Mux_t Mux_SP, ADS1247_Mux_t Mux_SN, ADS1247_BSC_t BSC);
+ADS1247_Status_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t *handle, ADS1247_Mux_t Mux_SP, ADS1247_Mux_t Mux_SN, ADS1247_BSC_t BSC);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `Mux_SP`: 选择的正输入端。
 - `Mux_SN`: 选择的负输入端。
 - `BSC`: 基准选择。
@@ -337,12 +337,12 @@ ADS1247_Status_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t handle, ADS1247_Mux_t Mux
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_Callback(ADS1247_Handle_t handle);
+ADS1247_Status_t ADS1247_Callback(ADS1247_Handle_t *handle);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 
 ### 返回值
 
@@ -358,12 +358,12 @@ ADS1247_Status_t ADS1247_Callback(ADS1247_Handle_t handle);
 ### 函数原型
 
 ```c
-ADS1247_Status_t ADS1247_GPIO_WritePin(ADS1247_Handle_t handle, ADS1247_Pin_t pin, ADS1247_GPIOData_t data);
+ADS1247_Status_t ADS1247_GPIO_WritePin(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIOData_t data);
 ```
 
 ### 参数
 
-- `handle`: ADS1247设备句柄。
+- `handle`: ADS1247设备句柄地址。
 - `pin`: GPIO引脚。
 - `value`: 输出值。
 

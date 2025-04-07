@@ -372,8 +372,6 @@ ADS1247_Status_t ADS1247_GPIO_WritePin(ADS1247_Handle_t *handle, ADS1247_Pin_t p
 - `ADS1247_OK`: 操作成功。
 - `ADS1247_ERROR`: 发生错误。
 
-好的，以下是用中文编写的 `ADS1247` 枚举类型文档：
-
 ---
 
 # ADS1247 枚举类型文档

@@ -32,7 +32,9 @@ typedef union {
 
 extern volatile User_Time_t UserTim; 
 
-extern uint32_t ADC_rsult;
+extern ADS1247_Handle_t ads1247;
+
+extern uint32_t ADS_adc;
 
 #ifdef __cplusplus
 }

@@ -93,21 +93,23 @@ int main(void)
   MX_TIM7_Init();
   MX_LPUART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  ADS1247_Init(DR_10SPS,PGA_1X);
-  uint32_t ADC_temp = 0;
+  ADS1247_Config_t conf = {
+      .spi = &hspi1,
+      .CS = {ADS_CS_GPIO_Port, ADS_CS_Pin},
+      .ReSet = {ADS_RST_GPIO_Port, ADS_RST_Pin},
+      .Start = {ADS_START_GPIO_Port, ADS_START_Pin},
+      .Timeout = 100,
+  };
+  ADS1247_CreateDevice(&ads1247,&conf);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  ADC_temp = ADS1247_getADC();
-	  if(ADC_temp != 0xFFFFFFFF)
-	  {
-	  ADC_rsult = ADC_temp;
-	  }
-    /* USER CODE END WHILE */
 
+    /* USER CODE END WHILE */
+    ADS1247_getADC(&ads1247,&ADS_adc);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

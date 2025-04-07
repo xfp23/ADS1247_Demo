@@ -207,7 +207,7 @@ void EXTI15_10_IRQHandler(void)
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
   if(__HAL_GPIO_EXTI_GET_IT(ADS_DRDY_Pin) != RESET)
   {
-    ADS1247_Callback();
+    ADS1247_Callback(&ads1247);
   }
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(ADS_DRDY_Pin);

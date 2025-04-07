@@ -2,7 +2,9 @@
 
 volatile User_Time_t UserTim;
 
-uint32_t ADC_rsult = 0; // ADS1247 转换结果缓存
+ADS1247_Handle_t ads1247 = NULL; // 句柄
+
+uint32_t ADS_adc = 0;
 
 /*******************************************************************************
 Name			:fputc

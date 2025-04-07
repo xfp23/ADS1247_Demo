@@ -4,12 +4,6 @@
 #include "string.h"
 #include "stdlib.h"
 
-/**
- * @brief 复位ads1247
- *
- * @param handle ads1247句柄
- * @return ADS1247_Staus_t 操作状态
- */
 ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle_t *handle)
 {
 	if (handle == NULL || *handle == NULL)
@@ -30,7 +24,7 @@ ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle_t *handle)
  * @param size 要写入的数据大小 单位: 字节
  * @return ADS1247_Staus_t 操作状态
  */
-ADS1247_Staus_t ADS1247_Writebyte(ADS1247_Handle_t *handle, uint8_t *data, size_t size)
+static ADS1247_Staus_t ADS1247_Writebyte(ADS1247_Handle_t *handle, uint8_t *data, size_t size)
 {
 	if (handle == NULL || *handle == NULL)
 		return ADS1247_ERROR; // 返回错误
@@ -64,7 +58,7 @@ ADS1247_Staus_t ADS1247_Writebyte(ADS1247_Handle_t *handle, uint8_t *data, size_
  * @param size 读取数据大小 单位 : 字节
  * @return ADS1247_Staus_t 操作状态
  */
-ADS1247_Staus_t ADS1247_Readbyte(ADS1247_Handle_t *handle, uint8_t *data, size_t size)
+static ADS1247_Staus_t ADS1247_Readbyte(ADS1247_Handle_t *handle, uint8_t *data, size_t size)
 {
 	if (handle == NULL || *handle == NULL)
 		return ADS1247_ERROR; // 返回错误
@@ -139,13 +133,6 @@ ADS1247_Staus_t ADS1247_ReadReg(ADS1247_Handle_t *handle, ADS1247_Reg_t reg, uin
 	return ret;
 }
 
-/**
- * @brief ADS1247初始化，句柄必须通过初始化后才有效
- *
- * @param handle ADS1247句柄
- * @param conf 配置结构体
- * @return ADS1247_Staus_t 操作状态
- */
 ADS1247_Staus_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t *conf)
 {
 	if (handle == NULL || *handle != NULL)
@@ -180,7 +167,7 @@ ADS1247_Staus_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t 
 
 	ret = ADS1247_SetIDACOutputPin(handle, ADS1247_IDAC_OUTPUT_AIN0, ADS1247_IDAC_OUTPUT_AIN0);
 
-	ret = ADS1247_WriteReg(handle, GPIOCFG_REG,0x00); // 禁用GPIO 0b00000000
+	ret = ADS1247_WriteReg(handle, GPIOCFG_REG, 0x00); // 禁用GPIO 0b00000000
 
 	ret = ADS1247_WriteReg(handle, GPIODIR_REG, 0x00);
 
@@ -191,14 +178,6 @@ ADS1247_Staus_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t 
 	return ret;
 }
 
-/**
- * @brief
- *
- * @param handle
- * @param Output1
- * @param Output2
- * @return ADS1247_Staus_t
- */
 ADS1247_Staus_t ADS1247_SetIDACOutputPin(ADS1247_Handle_t *handle, ADS1247_IDACOutputDIR_t Output1, ADS1247_IDACOutputDIR_t Output2)
 {
 	if (handle == NULL || *handle == NULL)
@@ -206,12 +185,6 @@ ADS1247_Staus_t ADS1247_SetIDACOutputPin(ADS1247_Handle_t *handle, ADS1247_IDACO
 	return ADS1247_WriteReg(handle, IDAC1_REG, (uint8_t)((Output1 << 4) | (Output2)));
 }
 
-/**
- * @brief 回调函数，请放在stm32xx_it.c 文件中的外部回调处。中断方式为下降沿中断
- *
- * @param handle 句柄
- * @return ADS1247_Staus_t 操作状态
- */
 ADS1247_Staus_t ADS1247_Callback(ADS1247_Handle_t *handle)
 {
 	if (handle == NULL || *handle == NULL)
@@ -220,13 +193,6 @@ ADS1247_Staus_t ADS1247_Callback(ADS1247_Handle_t *handle)
 	return ADS1247_OK;
 }
 
-/**
- * @brief 获取ADC转换结果
- *
- * @param handle ads1247句柄
- * @param buffer 读取结果缓冲区
- * @return ADS1247_Staus_t 操作状态，只有函数返回ADS1247_OK下的值有效
- */
 ADS1247_Staus_t ADS1247_getADC(ADS1247_Handle_t *handle, uint32_t *buffer)
 {
 	if (handle == NULL || *handle == NULL)
@@ -245,14 +211,6 @@ ADS1247_Staus_t ADS1247_getADC(ADS1247_Handle_t *handle, uint32_t *buffer)
 	return ADS1247_OK;
 }
 
-/**
- * @brief 设置采样速率和pga
- *
- * @param handle 句柄
- * @param dataRate 数据速率
- * @param pgaGain PGA
- * @return ADS1247_Staus_t 操作状态
- */
 ADS1247_Staus_t ADS1247_SetDataRateAndPGA(ADS1247_Handle_t *handle, ADS1247_SampleRate_t dataRate, ADS1247_PGA_Gain_t pgaGain)
 {
 	if (handle == NULL || *handle == NULL)
@@ -260,12 +218,6 @@ ADS1247_Staus_t ADS1247_SetDataRateAndPGA(ADS1247_Handle_t *handle, ADS1247_Samp
 	return ADS1247_WriteReg(handle, SYS0_REG, (uint8_t)dataRate | (uint8_t)(pgaGain << 4));
 }
 
-/**
- * @brief 删除ADS1247
- *
- * @param handle 句柄
- * @return ADS1247_Staus_t 操作状态
- */
 ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle_t *handle)
 {
 	if (handle == NULL || *handle == NULL)
@@ -277,16 +229,6 @@ ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle_t *handle)
 	return ADS1247_OK;
 }
 
-/**
- * @brief 配置偏置电压
- *
- * @param handle 句柄
- * @param VBIAS_AIN0
- * @param VBIAS_AIN1
- * @param VBIAS_AIN2
- * @param VBIAS_AIN3
- * @return ADS1247_Staus_t
- */
 ADS1247_Staus_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t *handle, ADS1247_VBIASAINx_t VBIAS_AIN0, ADS1247_VBIASAINx_t VBIAS_AIN1, ADS1247_VBIASAINx_t VBIAS_AIN2, ADS1247_VBIASAINx_t VBIAS_AIN3)
 {
 	if (handle == NULL || *handle == NULL)
@@ -294,14 +236,6 @@ ADS1247_Staus_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t *handle, ADS1247_VBIASAI
 	return ADS1247_WriteReg(handle, VBIAS_REG, VBIAS_AIN0 | (VBIAS_AIN1 << 1) | (VBIAS_AIN2 << 2) | (VBIAS_AIN3 << 3));
 }
 
-/**
- * @brief
- *
- * @param handle
- * @param IDAC
- * @param DRDY_Mode
- * @return ADS1247_Staus_t
- */
 ADS1247_Staus_t ADS1247_SetIDACWithDRDYMode(ADS1247_Handle_t *handle, ADS1247_EXCITACurrent_t IDAC, ADS1247_DRDYMode_t DRDY_Mode)
 {
 	if (handle == NULL || *handle == NULL)
@@ -309,15 +243,6 @@ ADS1247_Staus_t ADS1247_SetIDACWithDRDYMode(ADS1247_Handle_t *handle, ADS1247_EX
 	return ADS1247_WriteReg(handle, IDAC0_REG, IDAC | DRDY_Mode << 3);
 }
 
-/**
- * @brief
- *
- * @param handle
- * @param Mux_SP
- * @param Mux_SN
- * @param BSC
- * @return ADS1247_Staus_t
- */
 ADS1247_Staus_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t *handle, ADS1247_Mux_t Mux_SP, ADS1247_Mux_t Mux_SN, ADS1247_BSC_t BSC)
 {
 	if (handle == NULL || *handle == NULL)
@@ -325,14 +250,6 @@ ADS1247_Staus_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t *handle, ADS1247_Mux_t Mux
 	return ADS1247_WriteReg(handle, MUX0_REG, (uint8_t)(Mux_SP << 3) | (uint8_t)Mux_SN | (uint8_t)(BSC << 6));
 }
 
-/**
- * @brief
- *
- * @param handle
- * @param vref
- * @param internal
- * @return ADS1247_Staus_t
- */
 ADS1247_Staus_t ADS1247_SetReference(ADS1247_Handle_t *handle, ADS1247_VREF_t vref, ADS1247_Internal_t internal)
 {
 	if (handle == NULL || *handle == NULL)
@@ -340,14 +257,6 @@ ADS1247_Staus_t ADS1247_SetReference(ADS1247_Handle_t *handle, ADS1247_VREF_t vr
 	return ADS1247_WriteReg(handle, MUX1_REG, 0x00 | (uint8_t)(vref << 3) | (uint8_t)(internal << 5));
 }
 
-/**
- * @brief
- *
- * @param handle
- * @param pin
- * @param data
- * @return ADS1247_Staus_t
- */
 ADS1247_Staus_t ADS1247_GPIO_WritePin(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIOData_t data)
 {
 	if (handle == NULL || *handle == NULL)
@@ -361,20 +270,19 @@ ADS1247_Staus_t ADS1247_GPIO_WritePin(ADS1247_Handle_t *handle, ADS1247_Pin_t pi
 	return ADS1247_WriteReg(handle, GPIODAT_REG, Reg_data);
 }
 
-/**
- * @brief
- *
- * @param handle
- * @param pin
- * @param DIR
- * @return ADS1247_Staus_t
- */
 ADS1247_Staus_t ADS1247_GPIO_Config(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIODIR_t DIR)
 {
 	if (handle == NULL || *handle == NULL)
 		return ADS1247_ERROR;
 	uint8_t Reg_data = 0;
-	ADS1247_Staus_t ret = ADS1247_ReadReg(handle, GPIODIR_REG, &Reg_data);
+	ADS1247_Staus_t ret = ADS1247_ReadReg(handle, GPIOCFG_REG, &Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
+	Reg_data |= 1 << pin;
+	ret = ADS1247_WriteReg(handle, GPIOCFG_REG, Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
+	ret = ADS1247_ReadReg(handle, GPIODIR_REG, &Reg_data);
 	if (ret != ADS1247_OK)
 		return ret;
 	Reg_data &= ~(1 << pin);
@@ -382,12 +290,41 @@ ADS1247_Staus_t ADS1247_GPIO_Config(ADS1247_Handle_t *handle, ADS1247_Pin_t pin,
 	return ADS1247_WriteReg(handle, GPIODIR_REG, Reg_data);
 }
 
-/**
- * @brief 今天太晚了，明天写这最后一个API以及上面的注释细节
- * 
- * @return ADS1247_Staus_t 
- */
-ADS1247_Staus_t ADS1247_GPIO_Reset()
+ADS1247_Staus_t ADS1247_GPIO_Reset(ADS1247_Handle_t *handle, ADS1247_Pin_t pin)
 {
+	if (handle == NULL || *handle == NULL)
+		return ADS1247_ERROR;
+	ADS1247_Staus_t ret = ADS1247_OK;
+	if (pin == ADS1247_GPIOALL)
+	{
+		ret = ADS1247_WriteReg(handle, GPIOCFG_REG, 0x00);
+		ret = ADS1247_WriteReg(handle, GPIODIR_REG, 0x00);
+		ret = ADS1247_WriteReg(handle, GPIODAT_REG, 0x00);
+		return ret;
+	}
+	uint8_t Reg_data = 0x00;
+	ret = ADS1247_ReadReg(handle, GPIOCFG_REG, &Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
+	Reg_data &= ~(1 << pin);
+	ret = ADS1247_WriteReg(handle, GPIOCFG_REG, Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
 
+	ret = ADS1247_ReadReg(handle, GPIODIR_REG, &Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
+	Reg_data &= ~(1 << pin);
+	ret = ADS1247_WriteReg(handle, GPIODIR_REG, Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
+
+	ret = ADS1247_ReadReg(handle, GPIODAT_REG, &Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
+	Reg_data &= ~(1 << pin);
+	ret = ADS1247_WriteReg(handle, GPIODAT_REG, Reg_data);
+	if (ret != ADS1247_OK)
+		return ret;
+	return ADS1247_OK;
 }

@@ -173,6 +173,7 @@ typedef enum
     ADS1247_GPIO1,
     ADS1247_GPIO2,
     ADS1247_GPIO3,
+    ADS1247_GPIOALL, // 仅在复位时使用
 } ADS1247_Pin_t;
 
 typedef struct
@@ -237,33 +238,142 @@ typedef union
 typedef ADS1247_Class_t *ADS1247_Handle_t;
 
 
-extern ADS1247_Staus_t ADS1247_getADC(ADS1247_Handle_t *handle, uint32_t *buffer);
+/**
+ * @brief 获取ADC转换结果
+ *
+ * @param handle ads1247句柄地址
+ * @param buffer 读取结果缓冲区
+ * @return ADS1247_Staus_t 操作状态，只有函数返回ADS1247_OK下的值有效
+ */
+ADS1247_Staus_t ADS1247_getADC(ADS1247_Handle_t *handle, uint32_t *buffer);
 
-extern ADS1247_Staus_t ADS1247_Callback(ADS1247_Handle_t *handle);
+/**
+ * @brief 回调函数，请放在stm32xx_it.c 文件中的外部回调处。中断方式为下降沿中断
+ *
+ * @param handle 句柄地址
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_Callback(ADS1247_Handle_t *handle);
 
-extern ADS1247_Staus_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t *conf);
+/**
+ * @brief ADS1247初始化，句柄地址必须通过初始化后才有效
+ *
+ * @param handle ADS1247句柄地址
+ * @param conf 配置结构体
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_CreateDevice(ADS1247_Handle_t *handle, ADS1247_Config_t *conf);
 
-extern ADS1247_Staus_t ADS1247_SetDataRateAndPGA(ADS1247_Handle_t *handle, ADS1247_SampleRate_t dataRate, ADS1247_PGA_Gain_t pgaGain);
+/**
+ * @brief 设置采样速率和pga
+ *
+ * @param handle 句柄地址
+ * @param dataRate 数据速率
+ * @param pgaGain PGA
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_SetDataRateAndPGA(ADS1247_Handle_t *handle, ADS1247_SampleRate_t dataRate, ADS1247_PGA_Gain_t pgaGain);
 
-extern ADS1247_Staus_t ADS1247_Readbyte(ADS1247_Handle_t *handle, uint8_t *data, size_t size);
 
-extern ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle_t *handle);
+/**
+ * @brief 复位ads1247
+ *
+ * @param handle ads1247句柄地址
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_Reset(ADS1247_Handle_t *handle);
 
-extern ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle_t *handle); // 删除ADS1247
+/**
+ * @brief 删除ADS1247
+ *
+ * @param handle 句柄地址
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_Delete(ADS1247_Handle_t *handle); // 删除ADS1247
 
-extern ADS1247_Staus_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t *handle, ADS1247_VBIASAINx_t VBIAS_AIN0, ADS1247_VBIASAINx_t VBIAS_AIN1, ADS1247_VBIASAINx_t VBIAS_AIN2, ADS1247_VBIASAINx_t VBIAS_AIN3);
+/**
+ * @brief 配置偏置电压
+ *
+ * @param handle 句柄地址
+ * @param VBIAS_AIN0 AIN1设置偏置电压
+ * @param VBIAS_AIN1 AIN2设置偏置电压
+ * @param VBIAS_AIN2 AIN3设置偏置电压
+ * @param VBIAS_AIN3 AIN4设置偏置电压
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_ConfigureVBIAS(ADS1247_Handle_t *handle, ADS1247_VBIASAINx_t VBIAS_AIN0, ADS1247_VBIASAINx_t VBIAS_AIN1, ADS1247_VBIASAINx_t VBIAS_AIN2, ADS1247_VBIASAINx_t VBIAS_AIN3);
 
-extern ADS1247_Staus_t ADS1247_GPIO_Config(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIODIR_t DIR);
+/**
+ * @brief 配置gpio方向
+ *
+ * @param handle 句柄地址
+ * @param pin 引脚
+ * @param DIR 方向
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_GPIO_Config(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIODIR_t DIR);
 
-extern ADS1247_Staus_t ADS1247_GPIO_WritePin(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIOData_t data);
+/**
+ * @brief 向指定GPIO写入电平
+ *
+ * @param handle 句柄地址
+ * @param pin 引脚
+ * @param data 高低电平
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_GPIO_WritePin(ADS1247_Handle_t *handle, ADS1247_Pin_t pin, ADS1247_GPIOData_t data);
 
-extern ADS1247_Staus_t ADS1247_SetReference(ADS1247_Handle_t *handle, ADS1247_VREF_t vref, ADS1247_Internal_t internal);
+/**
+ * @brief 设置参考电压
+ *
+ * @param handle 句柄地址
+ * @param vref 外部参考电压设置
+ * @param internal 内部参考电压设置
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_SetReference(ADS1247_Handle_t *handle, ADS1247_VREF_t vref, ADS1247_Internal_t internal);
 
-extern ADS1247_Staus_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t *handle, ADS1247_Mux_t Mux_SP, ADS1247_Mux_t Mux_SN, ADS1247_BSC_t BSC);
+/**
+ * @brief 设置采样通道和烧毁电流源
+ *
+ * @param handle 句柄地址
+ * @param Mux_SP 采样输入正端
+ * @param Mux_SN 采样输入负端
+ * @param BSC 烧毁电流源大小
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t *handle, ADS1247_Mux_t Mux_SP, ADS1247_Mux_t Mux_SN, ADS1247_BSC_t BSC);
 
-extern ADS1247_Staus_t ADS1247_SetIDACWithDRDYMode(ADS1247_Handle_t *handle, ADS1247_EXCITACurrent_t IDAC, ADS1247_DRDYMode_t DRDY_Mode);
+/**
+ * @brief 设置激励电流大小和DRDY模式
+ *
+ * @param handle 句柄地址
+ * @param IDAC 激励电流大小
+ * @param DRDY_Mode DRDY模式
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_SetIDACWithDRDYMode(ADS1247_Handle_t *handle, ADS1247_EXCITACurrent_t IDAC, ADS1247_DRDYMode_t DRDY_Mode);
 
-extern ADS1247_Staus_t ADS1247_SetIDACOutputPin(ADS1247_Handle_t *handle, ADS1247_IDACOutputDIR_t Output1, ADS1247_IDACOutputDIR_t Output2);
+/**
+ * @brief 选择激励电流输出引脚
+ *
+ * @param handle 句柄地址
+ * @param Output1 IDAC1输出通道
+ * @param Output2 IDAC2输出通道
+ * @return ADS1247_Staus_t
+ */
+ADS1247_Staus_t ADS1247_SetIDACOutputPin(ADS1247_Handle_t *handle, ADS1247_IDACOutputDIR_t Output1, ADS1247_IDACOutputDIR_t Output2);
+
+
+/**
+ * @brief 重置GPIO
+ * 
+ * @param handle 句柄地址
+ * @param pin 引脚
+ * @return ADS1247_Staus_t 操作状态
+ */
+ADS1247_Staus_t ADS1247_GPIO_Reset(ADS1247_Handle_t *handle,ADS1247_Pin_t pin);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

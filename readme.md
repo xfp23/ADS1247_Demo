@@ -332,7 +332,7 @@ ADS1247_Status_t ADS1247_SetMuxAndBSC(ADS1247_Handle_t *handle, ADS1247_Mux_t Mu
 
 ## 15. ADS1247_Callback
 
-设备中断回调函数，用于处理设备的中断。
+该回调函数用于处理设备的中断。必须将此 API 放入 DRDY 中断引脚的触发函数中，以确保设备能够正常工作。中断应在下降沿触发时激活。
 
 ### 函数原型
 
